@@ -1,7 +1,7 @@
 import 'package:english_4000_hours/screens/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:english_4000_hours/authentication.dart';
+import 'package:english_4000_hours/services/authentication.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);

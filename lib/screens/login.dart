@@ -1,4 +1,4 @@
-import 'package:english_4000_hours/authentication.dart';
+import 'package:english_4000_hours/services/authentication.dart';
 import 'package:english_4000_hours/screens/home.dart';
 import 'package:english_4000_hours/screens/register.dart';
 import 'package:english_4000_hours/screens/reset_password.dart';
@@ -15,7 +15,10 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   TextEditingController emailAddressController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  final scaffoldKey = GlobalKey<ScaffoldState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _formKey = GlobalKey<FormState>();
+  RegExp emailFormat = RegExp(
+      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
 
   @override
   void initState() {
@@ -36,7 +39,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: scaffoldKey,
+      key: _scaffoldKey,
       body: SingleChildScrollView(
         child: Container(
           constraints: BoxConstraints(
@@ -94,109 +97,133 @@ class _LoginState extends State<Login> {
                       )),
                   child: Padding(
                     padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        TextFormField(
-                          controller: emailAddressController,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            label: const Text('Email Address'),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20.0,
-                        ),
-                        TextFormField(
-                          controller: passwordController,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            label: const Text('Password'),
-                          ),
-                        ),
-                        Container(
-                          alignment: Alignment.bottomRight,
-                          child: TextButton(
-                            onPressed: () {
-                              //Navigate to Reset Password
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => const ResetPassword(),
-                                ),
-                              );
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          TextFormField(
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'please enter your username or email';
+                              } else if (!emailFormat.hasMatch(value)) {
+                                return 'this is not a valid email format';
+                              }
+                              return null;
                             },
-                            child: const Text('Forgot Password'),
+                            controller: emailAddressController,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              label: const Text('Email Address'),
+                            ),
                           ),
-                        ),
-                        const SizedBox(
-                          height: 20.0,
-                        ),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 40.0,
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              bool authenticUser = await FirebaseAuthentication
-                                  .authenticate
-                                  .signIn(emailAddressController.text,
-                                      passwordController.text);
-                              authenticUser
-                                  ? Navigator.pushAndRemoveUntil(
+                          const SizedBox(
+                            height: 20.0,
+                          ),
+                          TextFormField(
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your password';
+                              } else if (value.length < 6) {
+                                return 'password should be atleast 6 characters';
+                              }
+                              return null;
+                            },
+                            controller: passwordController,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              label: const Text('Password'),
+                            ),
+                          ),
+                          Container(
+                            alignment: Alignment.bottomRight,
+                            child: TextButton(
+                              onPressed: () {
+                                //Navigate to Reset Password
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => const ResetPassword(),
+                                  ),
+                                );
+                              },
+                              child: const Text('Forgot Password'),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20.0,
+                          ),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 40.0,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  bool authenticUser =
+                                      await FirebaseAuthentication.authenticate
+                                          .signIn(emailAddressController.text,
+                                              passwordController.text);
+                                  authenticUser
+                                      ? Navigator.pushAndRemoveUntil(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const HomePage(),
+                                          ),
+                                          (route) => false,
+                                        )
+                                      : ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                          const SnackBar(
+                                            backgroundColor: Colors.red,
+                                            content: Text(
+                                              'Entered email or password is not correct',
+                                            ),
+                                          ),
+                                        );
+                                }
+                              },
+                              child: const Text(
+                                'Login',
+                                style: TextStyle(
+                                  fontSize: 18.0,
+                                ),
+                              ),
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all(Colors.indigo),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20.0,
+                          ),
+                          Container(
+                            alignment: Alignment.center,
+                            child: Row(
+                              children: [
+                                const Text("Don't have and account? "),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => const HomePage(),
+                                        builder: (context) => const Register(),
                                       ),
-                                      (route) => false,
-                                    )
-                                  : ScaffoldMessenger.of(context)
-                                      .showSnackBar(const SnackBar(
-                                      backgroundColor: Colors.red,
-                                      content: Text(
-                                        'Entered email or password is not correct',
-                                      ),
-                                    ));
-                            },
-                            child: const Text(
-                              'Login',
-                              style: TextStyle(
-                                fontSize: 18.0,
-                              ),
-                            ),
-                            style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all(Colors.indigo),
+                                    );
+                                  },
+                                  child: const Text('Register'),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
-                        const SizedBox(
-                          height: 20.0,
-                        ),
-                        Container(
-                          alignment: Alignment.center,
-                          child: Row(
-                            children: [
-                              const Text("Don't have and account? "),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const Register(),
-                                    ),
-                                  );
-                                },
-                                child: const Text('Register'),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
