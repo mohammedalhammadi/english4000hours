@@ -1,7 +1,6 @@
 import 'package:english_4000_hours/services/authentication.dart';
 import 'package:english_4000_hours/screens/home.dart';
 import 'package:flutter/material.dart';
-import 'package:english_4000_hours/main.dart';
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -17,6 +16,9 @@ class _RegisterState extends State<Register> {
   TextEditingController passwordController = TextEditingController();
   TextEditingController passwordConfirmController = TextEditingController();
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  final _formKey = GlobalKey<FormState>();
+  RegExp emailFormat = RegExp(
+      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
 
   @override
   Widget build(BuildContext context) {
@@ -80,158 +82,179 @@ class _RegisterState extends State<Register> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: TextField(
-                                enabled: false,
-                                controller: firstNameController,
-                                keyboardType: TextInputType.name,
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  label: const Text('First Name'),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 10.0,
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: TextField(
-                                enabled: false,
-                                controller: lastNameController,
-                                keyboardType: TextInputType.name,
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  label: const Text('Last Name'),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 20.0,
-                        ),
-                        TextField(
-                          controller: emailAddressController,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            label: const Text('Email Address'),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20.0,
-                        ),
-                        TextField(
-                          controller: passwordController,
-                          obscureText: true,
-                          // keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            label: const Text('Password'),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20.0,
-                        ),
-                        TextField(
-                          controller: passwordConfirmController,
-                          obscureText: true,
-                          // keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            label: const Text('Confirm Password'),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20.0,
-                        ),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 40.0,
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              if (passwordController.text ==
-                                  passwordConfirmController.text) {
-                                bool authenticUser =
-                                    await FirebaseAuthentication.authenticate
-                                        .signUp(emailAddressController.text,
-                                            passwordController.text);
-                                authenticUser
-                                    ? Navigator.pushAndRemoveUntil(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const HomePage(),
-                                        ),
-                                        (route) => false,
-                                      )
-                                    : ScaffoldMessenger.of(context)
-                                        .showSnackBar(
-                                        const SnackBar(
-                                          backgroundColor: Colors.red,
-                                          content: Text(
-                                              'email is already used or password is too short'),
-                                        ),
-                                      );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    backgroundColor: Colors.red,
-                                    content:
-                                        Text("Your password doesn't match"),
-                                  ),
-                                );
-                              }
-                            },
-                            child: const Text(
-                              'Register',
-                              style: TextStyle(
-                                fontSize: 18.0,
-                              ),
-                            ),
-                            style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all(Colors.indigo),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10.0,
-                        ),
-                        Container(
-                          alignment: Alignment.center,
-                          child: Row(
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text("Already have an account? "),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: const Text('Login'),
+                              Expanded(
+                                flex: 1,
+                                child: TextFormField(
+                                  // validator: (value) {
+                                  //   if (value == null || value.isEmpty) {
+                                  //     return 'this field is required';
+                                  //   }
+                                  //   return null;
+                                  // },
+                                  enabled: false,
+                                  controller: firstNameController,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    label: const Text('First Name'),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10.0),
+                              Expanded(
+                                flex: 1,
+                                child: TextFormField(
+                                  // validator: (value) {
+                                  //   if (value == null || value.isEmpty) {
+                                  //     return 'this field is required';
+                                  //   }
+                                  //   return null;
+                                  // },
+                                  enabled: false,
+                                  controller: lastNameController,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    label: const Text('Last Name'),
+                                  ),
+                                ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 20.0),
+                          TextFormField(
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Email is required';
+                              } else if (!emailFormat.hasMatch(value)) {
+                                return 'Invalid email';
+                              }
+                              return null;
+                            },
+                            controller: emailAddressController,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              label: const Text('Email Address'),
+                            ),
+                          ),
+                          const SizedBox(height: 20.0),
+                          TextFormField(
+                            validator: (value) {
+                              if (value == null ||
+                                  value.isEmpty ||
+                                  value.length < 6) {
+                                return 'Your password must be at least 6 characters';
+                              }
+                              return null;
+                            },
+                            controller: passwordController,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              label: const Text('Password'),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20.0,
+                          ),
+                          TextFormField(
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'You must confirm your password';
+                              } else if (value != passwordController.text) {
+                                return "Your password doesn't match";
+                              }
+                              return null;
+                            },
+                            controller: passwordConfirmController,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              label: const Text('Confirm Password'),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20.0,
+                          ),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 40.0,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  bool authenticUser =
+                                      await FirebaseAuthentication.authenticate
+                                          .signUpWithEmail(
+                                              emailAddressController.text,
+                                              passwordController.text);
+
+                                  if (authenticUser) {
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const HomePage(),
+                                      ),
+                                      (route) => false,
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        backgroundColor: Colors.red,
+                                        content: Text(
+                                            'Invalid credentials: email already used or password is weak'),
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                              child: const Text(
+                                'Register',
+                                style: TextStyle(
+                                  fontSize: 18.0,
+                                ),
+                              ),
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all(Colors.indigo),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 10.0,
+                          ),
+                          Container(
+                            alignment: Alignment.center,
+                            child: Row(
+                              children: [
+                                const Text("Already have an account? "),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('Login'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

@@ -1,6 +1,4 @@
 import 'package:english_4000_hours/services/authentication.dart';
-import 'package:english_4000_hours/screens/home.dart';
-import 'package:english_4000_hours/screens/register.dart';
 import 'package:flutter/material.dart';
 
 class ResetPassword extends StatefulWidget {

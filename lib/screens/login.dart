@@ -166,7 +166,8 @@ class _LoginState extends State<Login> {
                                 if (_formKey.currentState!.validate()) {
                                   bool authenticUser =
                                       await FirebaseAuthentication.authenticate
-                                          .signIn(emailAddressController.text,
+                                          .signInWithEmail(
+                                              emailAddressController.text,
                                               passwordController.text);
                                   authenticUser
                                       ? Navigator.pushAndRemoveUntil(
@@ -221,6 +222,50 @@ class _LoginState extends State<Login> {
                                 ),
                               ],
                             ),
+                          ),
+                          const SizedBox(height: 20),
+                          GestureDetector(
+                            child: InkWell(
+                              onTap: () {},
+                              child: Ink(
+                                color: const Color(0xFFFFFFFF),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(6),
+                                  child: Wrap(
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    children: [
+                                      Container(
+                                          constraints: const BoxConstraints(
+                                            maxHeight: 30.0,
+                                            maxWidth: 30.0,
+                                          ),
+                                          child: Image.asset(
+                                              'assets/images/Google_G_Logo.png')),
+                                      const SizedBox(width: 12),
+                                      const Text(
+                                        'Sign in with Google',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            onTap: () async {
+                              UserCredential userCredential =
+                                  await FirebaseAuthentication.authenticate
+                                      .signInWithGoogle();
+                              String user = userCredential.toString();
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text(userCredential.user!.uid),
+                                duration: const Duration(seconds: 2),
+                              ));
+                              userCredential.additionalUserInfo;
+                            },
                           ),
                         ],
                       ),
